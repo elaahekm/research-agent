@@ -6,11 +6,12 @@ from web_tool import web_search
 MODEL = "llama3.2:3b"
 
 SYSTEM = (
-    "Use the calculator only for math with numbers you already have. "
-    "For percentages, use decimals: 15% of 2400 is 0.15 * 2400. "
-    "If a fact is missing (like a population), use search_web first. "
-    "For greetings and chit-chat, answer directly without any tool."
+    "For greetings and chit-chat, answer directly without any tool. "
+    "Search for exactly the place or thing named in the question. "
+    "After you find a number, use the calculator to finish the math."
 )
+
+MAX_STEPS = 4
 
 
 def search_web(query: str) -> str:
@@ -31,7 +32,7 @@ def calculator(expression: str) -> str:
     try:
         return str(calculate(expression))
     except (ValueError, SyntaxError, ZeroDivisionError):
-        return "error: bad expression"
+        return "error: use only numbers. Call search_web first to get the number you need."
 
 
 TOOLS = {"search_web": search_web, "calculator": calculator}
@@ -42,14 +43,16 @@ def ask(question):
         {"role": "system", "content": SYSTEM},
         {"role": "user", "content": question},
     ]
-    
-    response = ollama.chat(
-        model=MODEL,
-        messages=messages,
-        tools=[search_web, calculator],
-    )
-    messages.append(response.message)
-    if response.message.tool_calls:
+    for _ in range(MAX_STEPS):
+        response = ollama.chat(
+            model=MODEL,
+            messages=messages,
+            tools=[search_web, calculator],
+            options={"temperature": 0},
+        )
+        messages.append(response.message)
+        if not response.message.tool_calls:
+            return response.message.content
         for call in response.message.tool_calls:
             name = call.function.name
             args = call.function.arguments
@@ -61,9 +64,8 @@ def ask(question):
             messages.append(
                 {"role": "tool", "tool_name": name, "content": result}
             )
-        response = ollama.chat(model=MODEL, messages=messages)
-    return response.message.content
+    return "error: too many steps"
 
 
 if __name__ == "__main__":
-        print(ask("What is the population of Tehran?"))
+    print(ask("What is 20% of the population of Iran?"))
