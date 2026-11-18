@@ -5,6 +5,13 @@ from web_tool import web_search
 
 MODEL = "llama3.2:3b"
 
+SYSTEM = (
+    "Use the calculator only for math with numbers you already have. "
+    "For percentages, use decimals: 15% of 2400 is 0.15 * 2400. "
+    "If a fact is missing (like a population), use search_web first. "
+    "For greetings and chit-chat, answer directly without any tool."
+)
+
 
 def search_web(query: str) -> str:
     """Search the web for current information.
@@ -32,13 +39,10 @@ TOOLS = {"search_web": search_web, "calculator": calculator}
 
 def ask(question):
     messages = [
-        {
-            "role": "system",
-            "content": "Use the calculator for any math. For percentages, "
-            "use decimals: 15% of 2400 is 0.15 * 2400.",
-        },
+        {"role": "system", "content": SYSTEM},
         {"role": "user", "content": question},
     ]
+    
     response = ollama.chat(
         model=MODEL,
         messages=messages,
