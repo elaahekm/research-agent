@@ -23,7 +23,7 @@ def calculator(expression: str) -> str:
     """
     try:
         return str(calculate(expression))
-    except Exception:
+    except (ValueError, SyntaxError, ZeroDivisionError):
         return "error: bad expression"
 
 
