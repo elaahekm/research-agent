@@ -28,6 +28,13 @@ ruff check .
 
 CI runs both on every push (GitHub Actions).
 
+Run the same checks in Docker:
+
+```
+docker build -t research-agent .
+docker run --rm research-agent
+```
+
 ## Evaluation
 
 `python eval.py` scores 8 / 9 on tool choice.
