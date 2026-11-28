@@ -31,10 +31,15 @@ def first_tool(question):
 
 
 if __name__ == "__main__":
-    score = 0
-    for question, expected in TESTS:
-        got = first_tool(question)
-        ok = got == expected
-        score += ok
-        print("OK" if ok else "WRONG", question, "->", got)
-    print("Score:", score, "/", len(TESTS))
+    RUNS = 5
+    totals = []
+    for run in range(RUNS):
+        score = 0
+        for question, expected in TESTS:
+            got = first_tool(question)
+            ok = got == expected
+            score += ok
+            print("OK" if ok else "WRONG", question, "->", got)
+        print("Run", run + 1, "Score:", score, "/", len(TESTS))
+        totals.append(score)
+    print("Average:", sum(totals) / RUNS, "/", len(TESTS))
