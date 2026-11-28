@@ -37,7 +37,8 @@ docker run --rm research-agent
 
 ## Evaluation
 
-`python eval.py` scores 8 / 9 on tool choice.
+`python eval.py` runs the 9 questions 5 times and prints the average. Results vary between runs (5 to 8 out of 9), and the average is about 6 / 9 on tool choice.
+
 
 ## Decisions
 
